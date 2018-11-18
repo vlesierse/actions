@@ -1,4 +1,4 @@
-FROM hasicorp/terraform
+FROM hashicorp/terraform
 
 LABEL name="terraform"
 LABEL version="0.11.10"
