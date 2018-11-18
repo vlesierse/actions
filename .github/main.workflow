@@ -1,6 +1,9 @@
 workflow "Build and Publish" {
   on = "push"
-  resolves = ["Lint", "Test"]
+  resolves = [
+    "Test",
+    "Publish",
+  ]
 }
 
 action "Lint" {
@@ -16,27 +19,27 @@ action "Test" {
 }
 
 action "Build" {
-  needs = ["Lint", "Test"]
   uses = "actions/action-builder/docker@master"
+  needs = ["Lint", "Test"]
   runs = "make"
   args = "build"
 }
 
 action "Publish Filter" {
-  needs = ["Build"]
-  uses = "actions/bin/filter@master"
+  uses = "actions/bin/filter@95c1a3b"
   args = "branch master"
+  needs = ["Build"]
 }
 
 action "Docker Login" {
-  needs = ["Publish Filter"]
   uses = "actions/docker/login@master"
-  secrets = ["DOCKER_USERNAME", "DOCKER_PASSWORD"]
+  secrets = ["DOCKER_PASSWORD", "DOCKER_USERNAME"]
+  needs = ["Publish Filter"]
 }
 
 action "Publish" {
-  needs = ["Docker Login"]
   uses = "actions/action-builder/docker@master"
   runs = "make"
   args = "publish"
+  needs = ["Docker Login"]
 }
